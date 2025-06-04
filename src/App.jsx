@@ -161,8 +161,6 @@ const App = () => {
     if (flagCount === cell.neighborMines) {
       const newBoard = JSON.parse(JSON.stringify(board));
       let hitMine = false;
-      let explodedRow = -1;
-      let explodedCol = -1;
       
       for (let r = Math.max(0, row - 1); r <= Math.min(rows - 1, row + 1); r++) {
         for (let c = Math.max(0, col - 1); c <= Math.min(cols - 1, col + 1); c++) {
@@ -177,8 +175,6 @@ const App = () => {
           // Check if mine was hit
           if (newBoard[r][c].isMine) {
             hitMine = true;
-            explodedRow = r;
-            explodedCol = c;
             newBoard[r][c].isExploded = true;
           } else if (newBoard[r][c].neighborMines === 0) {
             // For empty cells, recursively reveal neighbors
@@ -236,11 +232,11 @@ const App = () => {
     const newBoard = JSON.parse(JSON.stringify(board));
     
     // Reveal all cells, showing mines and incorrect flags
-    newBoard.forEach((row, r) => {
-      row.forEach((cell, c) => {
+    newBoard.forEach(row => {
+      row.forEach(cell => {
         // Reveal every cell
         cell.isRevealed = true;
-        
+
         // Mark incorrectly flagged cells
         if (cell.isFlagged && !cell.isMine) {
           cell.isIncorrectFlag = true;

@@ -30,4 +30,3 @@ The project uses Vite for building and the `gh-pages` package for deployment.
 ## Game Overview
 
 Bomb Mopper recreates classic Minesweeper gameplay. Choose a difficulty, reveal cells, and flag mines. Clearing all non-mine squares wins the game. A cheat mode is also available for practice.
-
