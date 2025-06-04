@@ -4,6 +4,9 @@
   "homepage": "https://seanwevans.github.io/bomb-mopper",
   "version": "0.0.0",
   "type": "module",
+  "engines": {
+    "node": ">=20"
+  },
   "scripts": {
     "dev": "vite",
     "build": "vite build",
