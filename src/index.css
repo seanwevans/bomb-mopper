@@ -1,1 +1,68 @@
 @import "tailwindcss";
+
+.minesweeper {
+  @apply inline-block max-w-full overflow-auto bg-[#c0c0c0] p-1.5;
+  @apply border-t-2 border-l-2 border-r-2 border-b-2;
+  @apply border-t-white border-l-white border-r-[#7b7b7b] border-b-[#7b7b7b];
+  font-family: 'MS Sans Serif', sans-serif;
+}
+
+.controls {
+  @apply flex justify-between bg-[#c0c0c0] p-1.5 mb-1.5;
+  @apply border-t-2 border-l-2 border-r-white border-b-white;
+  @apply border-t-[#7b7b7b] border-l-[#7b7b7b];
+}
+
+.counter {
+  @apply bg-black text-red-600 px-1 font-mono font-bold text-lg w-14 h-8;
+  @apply flex justify-center items-center;
+  @apply border border-t-[#7b7b7b] border-l-[#7b7b7b] border-r-white border-b-white;
+}
+
+.face {
+  @apply w-6 h-6 flex justify-center items-center text-xl cursor-pointer bg-[#c0c0c0] border;
+}
+.face-up {
+  border-top-color: #ffffff;
+  border-left-color: #ffffff;
+  border-right-color: #7b7b7b;
+  border-bottom-color: #7b7b7b;
+}
+.face-down {
+  border-top-color: #7b7b7b;
+  border-left-color: #7b7b7b;
+  border-right-color: #ffffff;
+  border-bottom-color: #ffffff;
+}
+
+.difficulty button,
+.cheat-controls button {
+  @apply bg-[#c0c0c0] border border-t-white border-l-white border-r-[#7b7b7b] border-b-[#7b7b7b] px-2 text-xs cursor-pointer font-sans;
+}
+
+.board {
+  @apply inline-block border-t-4 border-l-4 border-r-white border-b-white;
+  @apply border-t-[#7b7b7b] border-l-[#7b7b7b];
+}
+
+.cell-base {
+  @apply flex items-center justify-center text-sm font-bold select-none cursor-pointer w-6 h-6;
+}
+.cell-unrevealed {
+  @apply bg-[#c0c0c0] border border-t-white border-l-white border-r-[#7b7b7b] border-b-[#7b7b7b];
+}
+.cell-revealed {
+  @apply bg-[#c0c0c0] border border-[#7b7b7b];
+}
+
+.number-1 { color: blue; }
+.number-2 { color: green; }
+.number-3 { color: red; }
+.number-4 { color: navy; }
+.number-5 { color: brown; }
+.number-6 { color: teal; }
+.number-7 { color: black; }
+.number-8 { color: gray; }
+
+.mine.cheat { @apply opacity-50; }
+.mine.exploded { @apply text-red-600 bg-red-600 rounded-full w-[18px] h-[18px] flex items-center justify-center; }

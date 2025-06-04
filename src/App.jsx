@@ -1,4 +1,8 @@
 import React, { useState, useEffect, useCallback } from 'react';
+import Board from './components/Board.jsx';
+import Controls from './components/Controls.jsx';
+
+const cloneBoard = (b) => b.map((row) => row.map((cell) => ({ ...cell })));
 
 const App = () => {
   // Game constants
@@ -16,6 +20,12 @@ const App = () => {
   const [faceState, setFaceState] = useState('smile'); // 'smile', 'surprise', 'dead', 'cool'
   const [mouseDown, setMouseDown] = useState(false);
   const [cheatMode, setCheatMode] = useState(false);
+
+  const difficulties = [
+    { ...BEGINNER, label: 'Beginner', name: 'BEGINNER' },
+    { ...INTERMEDIATE, label: 'Intermediate', name: 'INTERMEDIATE' },
+    { ...EXPERT, label: 'Expert', name: 'EXPERT' },
+  ];
 
   // Initialize the board
   const initializeBoard = useCallback(() => {
@@ -39,7 +49,7 @@ const App = () => {
   // Place mines on the board (after first click)
   const placeMines = (firstClickRow, firstClickCol) => {
     const { rows, cols, mines } = difficulty;
-    const newBoard = JSON.parse(JSON.stringify(board));
+    const newBoard = cloneBoard(board);
     
     let minesPlaced = 0;
     while (minesPlaced < mines) {
@@ -87,7 +97,7 @@ const App = () => {
       const newBoard = placeMines(row, col);
       revealCell(newBoard, row, col);
     } else {
-      const newBoard = JSON.parse(JSON.stringify(board));
+      const newBoard = cloneBoard(board);
       
       // Game over if mine is clicked
       if (newBoard[row][col].isMine) {
@@ -111,7 +121,7 @@ const App = () => {
       return;
     }
     
-    const newBoard = JSON.parse(JSON.stringify(board));
+    const newBoard = cloneBoard(board);
     
     // Cycle: unmarked -> flag -> question mark -> unmarked
     if (!newBoard[row][col].isFlagged && !newBoard[row][col].isQuestionMark) {
@@ -159,10 +169,8 @@ const App = () => {
     
     // If flagCount matches the number of mines, reveal all non-flagged neighbors
     if (flagCount === cell.neighborMines) {
-      const newBoard = JSON.parse(JSON.stringify(board));
+      const newBoard = cloneBoard(board);
       let hitMine = false;
-      let explodedRow = -1;
-      let explodedCol = -1;
       
       for (let r = Math.max(0, row - 1); r <= Math.min(rows - 1, row + 1); r++) {
         for (let c = Math.max(0, col - 1); c <= Math.min(cols - 1, col + 1); c++) {
@@ -177,8 +185,6 @@ const App = () => {
           // Check if mine was hit
           if (newBoard[r][c].isMine) {
             hitMine = true;
-            explodedRow = r;
-            explodedCol = c;
             newBoard[r][c].isExploded = true;
           } else if (newBoard[r][c].neighborMines === 0) {
             // For empty cells, recursively reveal neighbors
@@ -233,11 +239,11 @@ const App = () => {
   
   // Reveal all mines when game is lost
   const revealAllMines = () => {
-    const newBoard = JSON.parse(JSON.stringify(board));
+    const newBoard = cloneBoard(board);
     
     // Reveal all cells, showing mines and incorrect flags
-    newBoard.forEach((row, r) => {
-      row.forEach((cell, c) => {
+    newBoard.forEach((row) => {
+      row.forEach((cell) => {
         // Reveal every cell
         cell.isRevealed = true;
         
@@ -269,11 +275,11 @@ const App = () => {
       setFaceState('cool');
       
       // Flag all remaining mines
-      const winBoard = JSON.parse(JSON.stringify(currentBoard));
-      winBoard.forEach((row, r) => {
-        row.forEach((cell, c) => {
+      const winBoard = cloneBoard(currentBoard);
+      winBoard.forEach((row, rowIndex) => {
+        row.forEach((cell, colIndex) => {
           if (cell.isMine && !cell.isFlagged) {
-            winBoard[r][c].isFlagged = true;
+            winBoard[rowIndex][colIndex].isFlagged = true;
           }
         });
       });
@@ -327,316 +333,32 @@ const App = () => {
     }
   };
 
-  // Get cell content
-  const getCellContent = (cell) => {
-    // Show mines when in cheat mode and cell is not revealed
-    if (cheatMode && !cell.isRevealed && cell.isMine) {
-      return <div className="mine cheat" style={{ opacity: 0.5 }}>💣</div>;
-    }
-
-    if (!cell.isRevealed) {
-      if (cell.isFlagged) {
-        return <div className="flag">🚩</div>;
-      }
-      if (cell.isQuestionMark) {
-        return <div className="question-mark">❓</div>;
-      }
-      if (cell.isIncorrectFlag) {
-        return <div className="wrong-flag">❌</div>;
-      }
-      return null;
-    }
-    
-    if (cell.isMine) {
-      if (cell.isExploded) {
-        return <div className="mine exploded" style={{ color: 'red', backgroundColor: 'red', borderRadius: '50%', width: '18px', height: '18px', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>💥</div>;
-      }
-      return <div className="mine">💣</div>;
-    }
-    
-    if (cell.neighborMines === 0) {
-      return null;
-    }
-    
-    // Color mapping for numbers
-    const colors = ['blue', 'green', 'red', 'navy', 'brown', 'teal', 'black', 'gray'];
-    const color = colors[cell.neighborMines - 1] || 'black';
-    
-    return (
-      <div className="number" style={{ color }}>
-        {cell.neighborMines}
-      </div>
-    );
-  };
-
   return (
-    <div 
+    <div
       className="minesweeper"
-      style={{
-        fontFamily: "'MS Sans Serif', sans-serif",
-        backgroundColor: '#c0c0c0',
-        borderTop: '2px solid #ffffff',
-        borderLeft: '2px solid #ffffff',
-        borderRight: '2px solid #7b7b7b',
-        borderBottom: '2px solid #7b7b7b',
-        padding: '6px',
-        display: 'inline-block',
-        maxWidth: '100%',
-        overflow: 'auto'
-      }}
       onMouseDown={handleMouseDown}
       onMouseUp={handleMouseUp}
       onMouseLeave={() => setMouseDown(false)}
     >
-      <div className="controls" style={{
-        display: 'flex',
-        justifyContent: 'space-between',
-        backgroundColor: '#c0c0c0',
-        padding: '6px',
-        marginBottom: '6px',
-        borderTop: '2px solid #7b7b7b',
-        borderLeft: '2px solid #7b7b7b',
-        borderRight: '2px solid #ffffff',
-        borderBottom: '2px solid #ffffff',
-      }}>
-        <div className="counter" style={{
-          backgroundColor: 'black',
-          color: 'red',
-          padding: '3px',
-          fontFamily: '"Digital-7", monospace',
-          fontWeight: 'bold',
-          fontSize: '20px',
-          width: '54px',
-          height: '32px',
-          textAlign: 'center',
-          borderTop: '1px solid #7b7b7b',
-          borderLeft: '1px solid #7b7b7b',
-          borderRight: '1px solid #ffffff',
-          borderBottom: '1px solid #ffffff',
-          display: 'flex',
-          justifyContent: 'center',
-          alignItems: 'center'
-        }}>
-          <div style={{
-            display: 'inline-block',
-            backgroundColor: 'black',
-            position: 'relative',
-            fontFamily: 'monospace',
-            letterSpacing: '2px'
-          }}>
-            {String(difficulty.mines - flagCount).padStart(3, '0').split('').map((digit, idx) => (
-              <span key={idx} style={{
-                display: 'inline-block',
-                width: '13px',
-                textShadow: '0 0 2px rgba(255,0,0,0.7)',
-                fontWeight: 'bold'
-              }}>
-                {digit}
-              </span>
-            ))}
-          </div>
-        </div>
-        
-        <button 
-          className="face"
-          onClick={resetGame}
-          style={{
-            width: '26px',
-            height: '26px',
-            backgroundColor: '#c0c0c0',
-            borderTop: mouseDown ? '1px solid #7b7b7b' : '1px solid #ffffff',
-            borderLeft: mouseDown ? '1px solid #7b7b7b' : '1px solid #ffffff',
-            borderRight: mouseDown ? '1px solid #ffffff' : '1px solid #7b7b7b',
-            borderBottom: mouseDown ? '1px solid #ffffff' : '1px solid #7b7b7b',
-            display: 'flex',
-            justifyContent: 'center',
-            alignItems: 'center',
-            fontSize: '20px',
-            cursor: 'pointer',
-          }}
-        >
-          {faceState === 'smile' && '🙂'}
-          {faceState === 'surprise' && '😮'}
-          {faceState === 'dead' && '😵'}
-          {faceState === 'cool' && '😎'}
-        </button>
-        
-        <div className="counter" style={{
-          backgroundColor: 'black',
-          color: 'red',
-          padding: '3px',
-          fontFamily: '"Digital-7", monospace',
-          fontWeight: 'bold',
-          fontSize: '20px',
-          width: '54px',
-          height: '32px',
-          textAlign: 'center',
-          borderTop: '1px solid #7b7b7b',
-          borderLeft: '1px solid #7b7b7b',
-          borderRight: '1px solid #ffffff',
-          borderBottom: '1px solid #ffffff',
-          display: 'flex',
-          justifyContent: 'center',
-          alignItems: 'center'
-        }}>
-          <div style={{
-            display: 'inline-block',
-            backgroundColor: 'black',
-            position: 'relative',
-            fontFamily: 'monospace',
-            letterSpacing: '2px'
-          }}>
-            {String(time).padStart(3, '0').split('').map((digit, idx) => (
-              <span key={idx} style={{
-                display: 'inline-block',
-                width: '13px',
-                textShadow: '0 0 2px rgba(255,0,0,0.7)',
-                fontWeight: 'bold'
-              }}>
-                {digit}
-              </span>
-            ))}
-          </div>
-        </div>
-      </div>
-      
-      <div className="difficulty" style={{
-        display: 'flex',
-        marginBottom: '6px',
-        gap: '4px',
-        justifyContent: 'center'
-      }}>
-        <button 
-          onClick={() => changeDifficulty(BEGINNER)}
-          style={{
-            backgroundColor: '#c0c0c0',
-            border: '1px solid',
-            borderTopColor: '#ffffff',
-            borderLeftColor: '#ffffff',
-            borderRightColor: '#7b7b7b',
-            borderBottomColor: '#7b7b7b',
-            padding: '2px 8px',
-            cursor: 'pointer',
-            fontFamily: "'MS Sans Serif', sans-serif",
-            fontSize: '12px',
-            fontWeight: difficulty === BEGINNER ? 'bold' : 'normal'
-          }}
-        >
-          Beginner
-        </button>
-        <button 
-          onClick={() => changeDifficulty(INTERMEDIATE)}
-          style={{
-            backgroundColor: '#c0c0c0',
-            border: '1px solid',
-            borderTopColor: '#ffffff',
-            borderLeftColor: '#ffffff',
-            borderRightColor: '#7b7b7b',
-            borderBottomColor: '#7b7b7b',
-            padding: '2px 8px',
-            cursor: 'pointer',
-            fontFamily: "'MS Sans Serif', sans-serif",
-            fontSize: '12px',
-            fontWeight: difficulty === INTERMEDIATE ? 'bold' : 'normal'
-          }}
-        >
-          Intermediate
-        </button>
-        <button 
-          onClick={() => changeDifficulty(EXPERT)}
-          style={{
-            backgroundColor: '#c0c0c0',
-            border: '1px solid',
-            borderTopColor: '#ffffff',
-            borderLeftColor: '#ffffff',
-            borderRightColor: '#7b7b7b',
-            borderBottomColor: '#7b7b7b',
-            padding: '2px 8px',
-            cursor: 'pointer',
-            fontFamily: "'MS Sans Serif', sans-serif",
-            fontSize: '12px',
-            fontWeight: difficulty === EXPERT ? 'bold' : 'normal'
-          }}
-        >
-          Expert
-        </button>
-      </div>
-      
-      <div className="cheat-controls" style={{
-        display: 'flex',
-        marginBottom: '6px',
-        justifyContent: 'center'
-      }}>
-        <button
-          onClick={() => setCheatMode(!cheatMode)}
-          style={{
-            backgroundColor: cheatMode ? '#ffaaaa' : '#c0c0c0',
-            border: '1px solid',
-            borderTopColor: '#ffffff',
-            borderLeftColor: '#ffffff',
-            borderRightColor: '#7b7b7b',
-            borderBottomColor: '#7b7b7b',
-            padding: '2px 8px',
-            cursor: 'pointer',
-            fontFamily: "'MS Sans Serif', sans-serif",
-            fontSize: '12px',
-            fontWeight: 'normal'
-          }}
-        >
-          {cheatMode ? "Cheat Mode ON" : "Cheat Mode OFF"}
-        </button>
-      </div>
-      
-      <div className="board" style={{
-        borderTop: '3px solid #7b7b7b',
-        borderLeft: '3px solid #7b7b7b',
-        borderRight: '3px solid #ffffff',
-        borderBottom: '3px solid #ffffff',
-        display: 'inline-block',
-      }}>
-        {board.map((row, rowIndex) => (
-          <div key={rowIndex} className="row" style={{ display: 'flex' }}>
-            {row.map((cell, colIndex) => (
-              <div
-                key={`${rowIndex}-${colIndex}`}
-                className={`cell ${cell.isRevealed ? 'revealed' : ''}`}
-                onClick={() => handleCellClick(rowIndex, colIndex)}
-                onContextMenu={(e) => handleRightClick(e, rowIndex, colIndex)}
-                onMouseDown={(e) => {
-                  // Detect both mouse buttons pressed (chord)
-                  if (e.buttons === 3) { // Left (1) + Right (2) = 3
-                    handleChordClick(rowIndex, colIndex);
-                  }
-                }}
-                style={{
-                  width: '25px',
-                  height: '25px',
-                  textAlign: 'center',
-                  fontSize: '16px',
-                  fontWeight: 'bold',
-                  lineHeight: '25px',
-                  userSelect: 'none',
-                  cursor: 'pointer',
-                  backgroundColor: cell.isRevealed ? '#c0c0c0' : '#c0c0c0',
-                  border: cell.isRevealed 
-                    ? '1px solid #7b7b7b' 
-                    : '1px solid',
-                  borderTopColor: cell.isRevealed ? '#7b7b7b' : '#ffffff',
-                  borderLeftColor: cell.isRevealed ? '#7b7b7b' : '#ffffff',
-                  borderRightColor: cell.isRevealed ? '#c0c0c0' : '#7b7b7b',
-                  borderBottomColor: cell.isRevealed ? '#c0c0c0' : '#7b7b7b',
-                  display: 'flex',
-                  justifyContent: 'center',
-                  alignItems: 'center',
-                  position: 'relative'
-                }}
-              >
-                {getCellContent(cell)}
-              </div>
-            ))}
-          </div>
-        ))}
-      </div>
+      <Controls
+        flagCount={flagCount}
+        time={time}
+        resetGame={resetGame}
+        mouseDown={mouseDown}
+        faceState={faceState}
+        cheatMode={cheatMode}
+        setCheatMode={setCheatMode}
+        difficulty={difficulty}
+        changeDifficulty={changeDifficulty}
+        difficulties={difficulties}
+      />
+      <Board
+        board={board}
+        onCellClick={handleCellClick}
+        onRightClick={handleRightClick}
+        onChordClick={handleChordClick}
+        cheatMode={cheatMode}
+      />
     </div>
   );
 };
