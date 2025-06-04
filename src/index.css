@@ -66,3 +66,11 @@
 
 .mine.cheat { @apply opacity-50; }
 .mine.exploded { @apply text-red-600 bg-red-600 rounded-full w-[18px] h-[18px] flex items-center justify-center; }
+
+@font-face {
+  font-family: 'Digital-7';
+  src: url('/digital-7.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
+

@@ -244,9 +244,10 @@ const App = () => {
     // Reveal all cells, showing mines and incorrect flags
     newBoard.forEach((row) => {
       row.forEach((cell) => {
+
         // Reveal every cell
         cell.isRevealed = true;
-        
+
         // Mark incorrectly flagged cells
         if (cell.isFlagged && !cell.isMine) {
           cell.isIncorrectFlag = true;
