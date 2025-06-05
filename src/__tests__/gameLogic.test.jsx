@@ -38,7 +38,7 @@ test('loses when clicking a mine', () => {
 
   withMockedRandom(randomValues, () => {
     const { container, getByText, unmount } = render(<App />);
-    const cells = container.querySelectorAll('.cell');
+    const cells = container.querySelectorAll('[data-testid="cell"]');
     // first click to initialize mines at known locations
     fireEvent.click(cells[0]);
     // click a known mine cell (row 8 col 0 -> index 8*9)
@@ -64,7 +64,7 @@ test('wins when all safe cells are revealed', () => {
 
   withMockedRandom(randomValues, () => {
     const { container, getByText, unmount } = render(<App />);
-    const cells = container.querySelectorAll('.cell');
+    const cells = container.querySelectorAll('[data-testid="cell"]');
     fireEvent.click(cells[0]); // first click
 
     // reveal all cells except known mines
