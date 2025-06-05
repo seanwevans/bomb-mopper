@@ -32,3 +32,19 @@ The project uses Vite for building and the `gh-pages` package for deployment.
   npm run deploy
   ```
 
+## Testing
+
+Before running tests ensure all dependencies are installed. You can use either `npm ci` or `npm install`:
+
+```bash
+npm ci
+# or
+npm install
+```
+
+Execute the test suite with:
+
+```bash
+npm test
+```
+
