@@ -8,7 +8,7 @@ afterEach(() => {
 
 test('initializes board with correct number of cells', () => {
   const { container, unmount } = render(<App />);
-  const cells = container.querySelectorAll('.cell');
+  const cells = container.querySelectorAll('[data-testid="cell"]');
   // beginner difficulty is 9x9
   expect(cells).toHaveLength(81);
   unmount();

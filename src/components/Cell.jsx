@@ -40,6 +40,7 @@ const Cell = ({ cell, onClick, onRightClick, onChordClick, cheatMode }) => {
 
   return (
     <div
+      data-testid="cell"
       className={cellClass}
       onClick={onClick}
       onContextMenu={onRightClick}
